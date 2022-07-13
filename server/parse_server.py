@@ -36,16 +36,8 @@ jinja_environment = jinja2.Environment(
 jinja_environment.assets_environment = assets_env
 Compress(app)
 
-app.parser = None
-PARSER_MODEL = os.getenv("PARSER_MODEL", os.path.join(SCRIPT_DIR, "..", "models/bilstm"))
-
-
-def get_parser():
-    if app.parser is None:
-        print("Initializing parser...")
-        print("PARSER_MODEL=" + PARSER_MODEL)
-        app.parser = Parser(PARSER_MODEL)
-    return app.parser
+PARSER_MODEL = os.getenv("PARSER_MODEL", os.path.join(SCRIPT_DIR, "..", "models/ucca-bilstm"))
+app_parser = Parser(PARSER_MODEL)
 
 
 @app.route("/")
@@ -55,10 +47,11 @@ def parser_demo():
 
 @app.route("/parse", methods=["POST"])
 def parse():
-    text = request.values["input"]
+    request_data = request.get_json()
+    text = request_data["text"]
     print("Parsing text: '%s'" % text)
     in_passage = next(from_text(text))
-    out_passage = next(get_parser().parse(in_passage))[0]
+    out_passage = next(app_parser.parse(in_passage))[0]
     root = to_standard(out_passage)
     xml = tostring(root).decode()
     return Response(indent_xml(xml), headers={"Content-Type": "xml/application"})
@@ -98,4 +91,4 @@ session_opts = {
 }
 
 if __name__ == "__main__":
-    app.run(debug=True, host=os.getenv("IP", "ucca"), port=int(os.getenv("PORT", 5001)))
+    app.run(debug=True, host='localhost', port=int(os.getenv("PORT", 5001)))
