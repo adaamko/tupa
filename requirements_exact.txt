@@ -11,7 +11,6 @@ dataclasses==0.8
 decorator==4.4.2
 docopt==0.6.2
 dyNET==2.1
-en-core-web-md==2.1.0
 Flask==2.0.3
 Flask-Assets==2.0
 Flask-Compress==1.12
