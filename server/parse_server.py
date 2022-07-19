@@ -56,6 +56,18 @@ def parse():
     xml = tostring(root).decode()
     return Response(indent_xml(xml), headers={"Content-Type": "xml/application"})
 
+@app.route("/parse_demo", methods=["POST"])
+def parse_demo():
+    text = request.values["input"]
+    print("Parsing text: '%s'" % text)
+    in_passage = next(from_text(text))
+    out_passage = next(app_parser.parse(in_passage))[0]
+    root = to_standard(out_passage)
+    xml = tostring(root).decode()
+    return Response(indent_xml(xml), headers={"Content-Type": "xml/application"})
+
+
+
 
 @app.route("/visualize", methods=["POST"])
 def visualize():
